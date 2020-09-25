@@ -68,13 +68,15 @@ def naive_single_channel(target, kernel):
 	
 	return convolved_image
 	
-def naive_correlation(target, template):
+def naive_matching(target, template, verbose = True):
 	# Get the size information
-	size_x, size_y = target.shape[:2]
-	template_x, template_y = template.shape[:2]
+	size_y, size_x = target.shape[:2]
+	template_y, template_x = template.shape[:2]
 	
 	# Create an empty convolved image template
-	match_result = np.zeros((size_x - template_x + 1, size_y - template_y + 1))
+	match_y = size_y - template_y + 1
+	match_x = size_x - template_x + 1
+	match_result = np.zeros((match_y, match_x))
 	target = target - np.mean(target)
 	template = template - np.mean(template)
 	
@@ -85,19 +87,21 @@ def naive_correlation(target, template):
 			# Cut out the target image in to the same size as the template, with (x, y) in the middle
 			# From (x - template_x//2) to (x + template_x//2 + 1)
 			# From (y - template_y//2) to (y + template_y//2 + 1)
-			target_window = target[x - template_x // 2 : x + template_x // 2 + 1, y - template_y // 2 : y + template_y // 2 + 1]
+			target_window = target[y - template_y // 2 : y + template_y // 2 + 1, x - template_x // 2 : x + template_x // 2 + 1]
 			# Convolve
 			# Target image (x,y) => convolved image (x - template//2, y -template//2)
-			match_result[x - template_x // 2, y - template_y //2] = np.sum(np.multiply(target_window, template))
+			match_result[y - template_y //2, x - template_x // 2] = np.sum(np.multiply(target_window, template))
 	
 	match_result = match_result - np.min(match_result)
-	match_resutl = match_result / np.max(match_result)
-	plt.imshow(match_result,'gray')
-	plt.show()
-	x_ = (np.argmax(match_result)//(size_x - template_x + 1)) + template_x//2
-	y_ = (np.argmax(match_result) % (size_x - template_x + 1)) + template_y//2
-	print(x_, y_)
-	return match_result
+	match_result = match_result / np.max(match_result)
+	if verbose:
+		plt.imshow(match_result,'gray')
+		plt.show()
+	match_point = np.argmax(match_result)
+	# These coordinates are for the ORIGINAL IMAGE not the result image!
+	x_matchpoint = match_point % match_x + template_x//2
+	y_matchpoint = match_point // match_x + template_y//2
+	return((x_matchpoint, y_matchpoint),match_result)
 	
 if __name__ == "__main__":
 	# Images
@@ -119,7 +123,14 @@ if __name__ == "__main__":
 	
 	#naive_convolve(g_minsoo, sobel)
 	#naive_convolve(g_minsoo, sobel2)
-	naive_correlation(g_minsoo, sobel2)
-	naive_correlation(g_minsoo, g_ear)
+	coord, match_img = naive_matching(g_minsoo, g_ear, False)
+	print(coord)
+	plt.subplot(131)
+	plt.imshow(g_minsoo,'gray')
+	plt.subplot(132)
+	plt.imshow(g_ear,'gray')
+	plt.subplot(133)
+	plt.imshow(match_img,'gray')
+	plt.show()
 	
 	

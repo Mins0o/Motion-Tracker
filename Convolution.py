@@ -6,6 +6,7 @@ def naive_convolve(target, kernel, verbose = True):
 	1. Kernel should have odd number of pixels for horizontal and vertical dimensions. This is because we need to know the center point of where the kernel is being convolved.
 	2. The act of convolving is done by np.sum(n.multiply(<Image>, <Kernel>)). (Yes, the image and kernel are in np.array type.)
 	3. Image array should be float ranging between 0 to 1.
+	4. Check the dtype and normalize to 0~1.
 	"""
 	size_x, size_y = target.shape[:2]
 	kernel_x, kernel_y = kernel.shape[:2]

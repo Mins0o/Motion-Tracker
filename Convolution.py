@@ -14,6 +14,11 @@ def naive_convolve(target, kernel, verbose = True):
 	
 	
 	convolved_image = np.zeros((size_x - kernel_x + 1,size_y - kernel_y + 1, 3))
+	
+	
+	if target.dtype == 'float':
+		pass
+	
 	# one channel
 	if len(target.shape) == 2 or target.shape[2] == 1:
 		print("Single Channel")

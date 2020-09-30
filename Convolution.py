@@ -17,7 +17,8 @@ def naive_convolve(target, kernel, verbose = True):
 	
 	
 	if target.dtype == 'float':
-		pass
+		target = target - target.min
+		target = target / target.max
 	
 	# one channel
 	if len(target.shape) == 2 or target.shape[2] == 1:

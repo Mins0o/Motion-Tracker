@@ -50,7 +50,11 @@ def pad_image(target, kernel_size = (3, 3)):
 	"""
 	The kernel_size parameter is a tuple with two integers.
 	"""
-	pass
+	target_x, target_y = np.shape(target)[:2]
+	kernel_x, kernel_y = kernel_size
+	new_image = np.zeros(target_x + kernel_x - 1, target_y + kernel_y - 1)
+	new_image[kernel_x //2:kernel_x // 2 + 1 + target_x, kernel_y // 2:kernel_y // 2 + 1 + target_y]
+	return(new_image)
 	
 def naive_single_channel(target, kernel):
 	"""

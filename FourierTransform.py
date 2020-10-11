@@ -8,4 +8,5 @@ def ft_2d_naive(image):
 	y_sum = np.arange(-image_y // 2, image_y // 2)[:,np.newaxis]
 	y_exponent = (y_sum[:,np.newaxis] * y_sum) / image_y
 	exp_matrix = np.exp(-2 * np.pi * (0+1j) * (x_exponent[:,:,np.newaxis,np.newaxis] + y_exponent))
-	return(exp_matrix)
+	ft_matrix = np.sum(np.sum(exp_matrix,axis=4),axis=3)
+	return(ft_matrix)

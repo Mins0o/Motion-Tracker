@@ -80,7 +80,9 @@ def naive_single_channel(target, kernel):
 			convolved_image[x - kernel_x // 2, y - kernel_y //2] = np.sum(np.multiply(target_window, kernel))
 	
 	return convolved_image
-	
+
+# Just convolving/correlating a template for matching does not work as matching
+# The kind of correlation that works is called Normalized Cross Correlation (NCC)
 def naive_matching(target, template, verbose = True):
 	# Get the size information
 	size_y, size_x = target.shape[:2]

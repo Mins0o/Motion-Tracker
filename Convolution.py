@@ -117,7 +117,10 @@ def naive_matching(target, template, verbose = True):
 	x_matchpoint = match_point % match_x + template_x//2
 	y_matchpoint = match_point // match_x + template_y//2
 	return((x_matchpoint, y_matchpoint),match_result)
-	
+
+def convolution_ft(image,kernel):
+	pass
+
 if __name__ == "__main__":
 	# Images
 	minsoo = plt.imread("./Img/Minsoo.jpg")/255

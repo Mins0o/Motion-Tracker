@@ -28,6 +28,9 @@ def ft_2d_naive(image):
 	# return(ft_matrix)
 	
 	
+def custom_fft2(image):
+	pass
+	
 def display_fourier(fourier):
 	plt.imshow(np.log(np.abs(np.fft.fftshift(fourier))),'gray')
 	

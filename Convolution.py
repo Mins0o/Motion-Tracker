@@ -119,7 +119,9 @@ def naive_matching(target, template, verbose = True):
 	return((x_matchpoint, y_matchpoint),match_result)
 
 def convolution_ft(image,kernel):
+	image_x, image_y, ch = image.shape
 	pass
+	
 
 if __name__ == "__main__":
 	# Images

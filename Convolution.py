@@ -1,30 +1,36 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def naive_convolve(target, kernel, verbose = True):
+def naive_convolve(target, kernel, verbose = True, pad = False):
 	"""
-	1. Kernel should have odd number of pixels for horizontal and vertical dimensions. This is because we need to know the center point of where the kernel is being convolved.
-	2. The act of convolving is done by np.sum(n.multiply(<Image>, <Kernel>)). (Yes, the image and kernel are in np.array type.)
-	3. Image array should be float ranging between 0 to 1.
-	4. Check the dtype and normalize to 0~1.
+	target: (nparray) target image.
+	kernel: (nparray) The kernel (filter) you want to apply to the image.
+			The dimensions should be odd numbers.
+	verbose: (Boolean) If True, plot of the result is shown.
+	pad : (Boolean) If True, the target image is padded with zeros before convolving. Default is False.
 	"""
+	
+	# The number of channels is not handled here because grayscale images-
+	# - cause index error. It is handled in the if statements below.
 	size_x, size_y = target.shape[:2]
-	kernel_x, kernel_y = kernel.shape[:2]
-	# target shape validity check
+	kernel_x, kernel_y = kernel.shape
+	# kernel shape validity check
+	if((kernel_x//2) * (kernel_y//2)) == 0:
+		print("Kernel sizes should be odd numbers in both axises")
+		return(target)
 	
 	
 	convolved_image = np.zeros((size_x - kernel_x + 1,size_y - kernel_y + 1, 3))
 	
 	
-	if target.dtype == 'float':
-		target = target - target.min
-		target = target / target.max
-	else:
+	if not target.dtype == 'float':
 		target.dtype = 'float'
-	
-	# one channel
+		target = (target + 0.5) / 256
+		if target.max() > 1:
+			print("Image's max value exceeds the limit")
+		
+	# One channel
 	if len(target.shape) == 2 or target.shape[2] == 1:
-		print("Single Channel")
 		convolved_image = naive_single_channel(target, kernel)
 	
 	elif target.shape[2] == 3:
@@ -46,26 +52,40 @@ def naive_convolve(target, kernel, verbose = True):
 		plt.show()
 	return convolved_image
 	
-def pad_image(target, kernel_size = (3, 3)):
+def pad_image(target, kernel_size = (3, 3), value = "zero"):
 	"""
-	The kernel_size parameter is a tuple with two integers.
+	target: nparray of the image
+	kernel_size: The size of the kernel being used.
+				tuple with two integers (both numbers are odd numbers).
+	value: The pattern value to fill in the padding
+			-zero: default. Fills in the padding with zero
+			-symmetric: (sym) Fills in the padding with mirrored image
+			-tile: Fills in the padding as if the image is tiled (repeated).
 	"""
 	target_x, target_y = np.shape(target)[:2]
 	kernel_x, kernel_y = kernel_size
-	new_image = np.zeros(target_x + kernel_x - 1, target_y + kernel_y - 1)
-	new_image[kernel_x //2:kernel_x // 2 + 1 + target_x, kernel_y // 2:kernel_y // 2 + 1 + target_y]
+	if len(target.shape) == 2 or target.shape[2] == 1:
+		new_image = np.zeros((target_x + kernel_x - 1, target_y + kernel_y - 1))
+	elif target.shape[2] == 3:
+		new_image = np.zeros((target_x + kernel_x - 1, target_y + kernel_y - 1, 3))
+	new_image[kernel_x //2:kernel_x // 2 + target_x, kernel_y // 2:kernel_y // 2 + target_y] = target
+	if value.lower() = "sym" or value.lower = "symmetric":
+		pass
+	elif value.lower() = "tile":
+		pass
 	return(new_image)
 	
 def naive_single_channel(target, kernel):
 	"""
 	This method just simply convolves the images as if there is no padding. 
-	The padding could be added prior to produce intended result image.
+	The padding could be added prior to calling this method.
 	"""
 	# Get the size information
 	size_x, size_y = target.shape[:2]
 	kernel_x, kernel_y = kernel.shape[:2]
 	
 	# Create an empty convolved image template
+	# Notice the result size is smaller than the input image.
 	convolved_image = np.zeros((size_x - kernel_x + 1, size_y - kernel_y + 1))
 	
 	# Loop throught the target image with the kernel

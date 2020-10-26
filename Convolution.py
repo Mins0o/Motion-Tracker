@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import FourierTransform
 
 def naive_convolve(target, kernel, verbose = True, pad = False):
 	"""
@@ -69,9 +70,9 @@ def pad_image(target, kernel_size = (3, 3), value = "zero"):
 	elif target.shape[2] == 3:
 		new_image = np.zeros((target_x + kernel_x - 1, target_y + kernel_y - 1, 3))
 	new_image[kernel_x //2:kernel_x // 2 + target_x, kernel_y // 2:kernel_y // 2 + target_y] = target
-	if value.lower() = "sym" or value.lower = "symmetric":
+	if value.lower() == "sym" or value.lower == "symmetric":
 		pass
-	elif value.lower() = "tile":
+	elif value.lower() == "tile":
 		pass
 	return(new_image)
 	
@@ -139,8 +140,52 @@ def naive_matching(target, template, verbose = True):
 	return((x_matchpoint, y_matchpoint),match_result)
 
 def convolution_ft(image,kernel):
-	image_x, image_y, ch = image.shape
-	pass
+	image_x, image_y = image.shape[:2]
+	kernel_x, kernel_y = image.shape[:2]
+	
+	if not image.dtype == 'float':
+		image.dtype = 'float'
+		image = (image + 0.5) / 256
+		if image.max() > 1:
+			print("Image's max value exceeds the limit")
+	
+	if kernel_x > image_x or kernel_y > image_y:
+		print("The target image must have bigger dimension than the kernel")
+		return image
+		
+	kernel = _extend_kernel(kernel, image_x, image_y)
+	ft_image = FourierTransform.ft_2d_naive(image)
+	ft_kernel = FourierTransform.ft_2d_naive(kernel)
+	
+	# One channel
+	if len(image.shape) == 2 or target.shape[2] == 1:
+		convolved_ft = ft_image * ft_kernel
+		convolved_image = FourierTransform.inverse_ft2(convolved_ft)
+	
+	elif target.shape[2] == 3:
+		# separate channels
+		channel1 = target[:,:,0]
+		channel2 = target[:,:,1]
+		channel3 = target[:,:,2]
+		convolved1 = naive_single_channel(channel1, kernel)
+		convolved2 = naive_single_channel(channel2, kernel)
+		convolved3 = naive_single_channel(channel3, kernel)
+		channels = (convolved1, convolved2, convolved3)
+		convolved_image = np.stack(channels, axis = 2)
+	else:
+		print("We are not ready to process this type of image yet")
+		return convolved_image
+		
+	
+	
+	
+
+def _extend_kernel(kernel, target_size = (100,100)):
+	target_x, target_y = target_size
+	kernel_x, kernel_y = kernel.shape
+	ext_kernel = np.zeros((target_x, target_y))
+	ext_kernel[:kernel_x, :kernel_y] = kernel
+	return ext_kernel
 	
 
 if __name__ == "__main__":

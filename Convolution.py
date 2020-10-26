@@ -48,8 +48,14 @@ def naive_convolve(target, kernel, verbose = True, pad = False):
 		print("We are not ready to process this type of image yet")
 		return convolved_image
 		
+	# This should be done to absolute value if you want to properly show the image
+	_temp_zero = convolved_image < 0
+	_temp_one = convolved_image > 1
+	convolved_image[_temp_zero] = 0
+	convolved_image[_temp_one] = 1
+	
 	if verbose:
-		plt.imshow(convolved_image, "gray", vmin = 0, vmax = 1)
+		plt.imshow(convolved_image, "gray")
 		plt.show()
 	return convolved_image
 	
@@ -154,27 +160,31 @@ def convolution_ft(image,kernel):
 		return image
 		
 	kernel = _extend_kernel(kernel, image_x, image_y)
-	ft_image = FourierTransform.ft_2d_naive(image)
 	ft_kernel = FourierTransform.ft_2d_naive(kernel)
 	
 	# One channel
 	if len(image.shape) == 2 or target.shape[2] == 1:
+		ft_image = FourierTransform.ft_2d_naive(image)
 		convolved_ft = ft_image * ft_kernel
 		convolved_image = FourierTransform.inverse_ft2(convolved_ft)
-	
 	elif target.shape[2] == 3:
 		# separate channels
 		channel1 = target[:,:,0]
 		channel2 = target[:,:,1]
 		channel3 = target[:,:,2]
-		convolved1 = naive_single_channel(channel1, kernel)
-		convolved2 = naive_single_channel(channel2, kernel)
-		convolved3 = naive_single_channel(channel3, kernel)
+		ft_ch1 = FourierTransform.ft_2d_naive(channel1)
+		ft_ch2 = FourierTransform.ft_2d_naive(channel2)
+		ft_ch3 = FourierTransform.ft_2d_naive(channel3)
+		convolved1 = np.abs(FourierTransform.inverse_ft2(ft_ch1 * ft_kernel))
+		convolved2 = np.abs(FourierTransform.inverse_ft2(ft_ch2 * ft_kernel))
+		convolved3 = np.abs(FourierTransform.inverse_ft2(ft_ch3 * ft_kernel))
 		channels = (convolved1, convolved2, convolved3)
 		convolved_image = np.stack(channels, axis = 2)
 	else:
 		print("We are not ready to process this type of image yet")
 		return convolved_image
+	
+	return convolved_image
 		
 	
 	

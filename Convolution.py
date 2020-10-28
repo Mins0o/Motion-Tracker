@@ -1,3 +1,4 @@
+#import cupy as np
 import numpy as np
 import matplotlib.pyplot as plt
 import FourierTransform
@@ -55,6 +56,7 @@ def naive_convolve(target, kernel, verbose = True, pad = False):
 	convolved_image[_temp_one] = 1
 	
 	if verbose:
+		#plt.imshow(convolved_image.get(), "gray")
 		plt.imshow(convolved_image, "gray")
 		plt.show()
 	return convolved_image
@@ -159,7 +161,7 @@ def convolution_ft(image,kernel):
 		print("The target image must have bigger dimension than the kernel")
 		return image
 		
-	kernel = _extend_kernel(kernel, (image_x, image_y))
+	kernel = extend_kernel(kernel, (image_x, image_y))
 	ft_kernel = FourierTransform.ft_2d_2loops(kernel)
 	
 	# One channel
@@ -190,7 +192,7 @@ def convolution_ft(image,kernel):
 	
 	
 
-def _extend_kernel(kernel, target_size = (100,100)):
+def extend_kernel(kernel, target_size = (100,100)):
 	target_x, target_y = target_size
 	kernel_x, kernel_y = kernel.shape
 	ext_kernel = np.zeros((target_x, target_y))

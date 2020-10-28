@@ -159,25 +159,25 @@ def convolution_ft(image,kernel):
 		print("The target image must have bigger dimension than the kernel")
 		return image
 		
-	kernel = _extend_kernel(kernel, image_x, image_y)
-	ft_kernel = FourierTransform.ft_2d_naive(kernel)
+	kernel = _extend_kernel(kernel, (image_x, image_y))
+	ft_kernel = FourierTransform.ft_2d_2loops(kernel)
 	
 	# One channel
 	if len(image.shape) == 2 or target.shape[2] == 1:
-		ft_image = FourierTransform.ft_2d_naive(image)
+		ft_image = FourierTransform.ft_2d_2loops(image)
 		convolved_ft = ft_image * ft_kernel
-		convolved_image = FourierTransform.inverse_ft2(convolved_ft)
+		convolved_image = FourierTransform.inverse_ft2_2loops(convolved_ft)
 	elif target.shape[2] == 3:
 		# separate channels
 		channel1 = target[:,:,0]
 		channel2 = target[:,:,1]
 		channel3 = target[:,:,2]
-		ft_ch1 = FourierTransform.ft_2d_naive(channel1)
-		ft_ch2 = FourierTransform.ft_2d_naive(channel2)
-		ft_ch3 = FourierTransform.ft_2d_naive(channel3)
-		convolved1 = np.abs(FourierTransform.inverse_ft2(ft_ch1 * ft_kernel))
-		convolved2 = np.abs(FourierTransform.inverse_ft2(ft_ch2 * ft_kernel))
-		convolved3 = np.abs(FourierTransform.inverse_ft2(ft_ch3 * ft_kernel))
+		ft_ch1 = FourierTransform.ft_2d_2loops(channel1)
+		ft_ch2 = FourierTransform.ft_2d_2loops(channel2)
+		ft_ch3 = FourierTransform.ft_2d_2loops(channel3)
+		convolved1 = np.abs(FourierTransform.inverse_ft2_2loops(ft_ch1 * ft_kernel))
+		convolved2 = np.abs(FourierTransform.inverse_ft2_2loops(ft_ch2 * ft_kernel))
+		convolved3 = np.abs(FourierTransform.inverse_ft2_2loops(ft_ch3 * ft_kernel))
 		channels = (convolved1, convolved2, convolved3)
 		convolved_image = np.stack(channels, axis = 2)
 	else:

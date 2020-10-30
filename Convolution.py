@@ -148,6 +148,7 @@ def naive_matching(target, template, verbose = True):
 	return((x_matchpoint, y_matchpoint),match_result)
 
 def convolution_ft(image,kernel):
+	"""This method takes up too much time"""
 	image_x, image_y = image.shape[:2]
 	kernel_x, kernel_y = image.shape[:2]
 	

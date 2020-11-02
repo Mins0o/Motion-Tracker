@@ -27,6 +27,8 @@ def naive_convolve(target, kernel, verbose = True, pad = False):
 		print("Kernel sizes should be odd numbers in both axises")
 		return(target)
 	
+	if pad:
+		target = pad_image(target,(kernel_x, kernel_y))
 	
 	convolved_image = np.zeros((size_x - kernel_x + 1,size_y - kernel_y + 1, 3))
 	
@@ -112,7 +114,7 @@ def naive_single_channel(target, kernel):
 			target_window = target[x - kernel_x // 2 : x + kernel_x // 2 + 1, y - kernel_y // 2 : y + kernel_y // 2 + 1]
 			# Convolve
 			# Target image (x,y) => convolved image (x - kernel//2, y -kernel//2)
-			convolved_image[x - kernel_x // 2, y - kernel_y //2] = np.sum(np.multiply(target_window, kernel))
+			convolved_image[x - kernel_x // 2, y - kernel_y //2] = np.sum(np.multiply(target_window, np.rot90(kernel,2)))
 	
 	return convolved_image
 
@@ -222,10 +224,15 @@ if __name__ == "__main__":
 	sobel = np.array([[-1, -1, -1],[-1, 8, -1],[-1, -1, -1]])
 	sobel2 = np.array([[-2, -2, -2],[-2, 16, -2],[-2, -2, -2]])
 	
+	translation = np.zeros((101,101))
+	translation[0,0] = 1
+	
 	
 	#naive_convolve(g_minsoo, sobel)
 	#naive_convolve(g_minsoo, sobel2)
+	naive_convolve(minsoo,translation,True,True)
 	coord, match_img = naive_matching(g_minsoo, g_ear, False)
+	#coord, match_img = naive_matching(g_minsoo, translation, False)
 	print(coord)
 	plt.subplot(131)
 	plt.imshow(g_minsoo,'gray')

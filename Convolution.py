@@ -3,6 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import FourierTransform
 
+def template_matching(template,target):
+	"""I wrote the methods below purely for my amusement and learning.
+	That's why I went extra miles with unoptimized approach and my own crude algorithms.
+	This method will utilize optimized methods from external library and will be used for practical performance."""
+	pass
+
 def naive_convolve(target, kernel, verbose = True, pad = False):
 	"""
 	target: (nparray) target image.
@@ -121,6 +127,8 @@ def naive_matching(target, template, verbose = True):
 	match_y = size_y - template_y + 1
 	match_x = size_x - template_x + 1
 	match_result = np.zeros((match_y, match_x))
+	
+	# Normalizing by subtracting the mean value
 	target = target - np.mean(target)
 	template = template - np.mean(template)
 	
@@ -188,10 +196,6 @@ def convolution_ft(image,kernel):
 		return convolved_image
 	
 	return convolved_image
-		
-	
-	
-	
 
 def extend_kernel(kernel, target_size = (100,100)):
 	target_x, target_y = target_size

@@ -3,6 +3,7 @@ import numpy as np
 
 
 def ft_2d_naive(image):
+	# This method cannot be executed with my laptop since it requires more than 4 GiB of memory.
 	image_x, image_y = image.shape[:2]
 	x_sum = np.arange(image_x)
 	y_sum = np.arange(image_y)

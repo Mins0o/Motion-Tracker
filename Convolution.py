@@ -3,11 +3,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import FourierTransform
 
+import cv2
+
 def template_matching(template,target):
 	"""I wrote the methods below purely for my amusement and learning.
 	That's why I went extra miles with unoptimized approach and my own crude algorithms.
 	This method will utilize optimized methods from external library and will be used for practical performance."""
-	pass
+	target = pad_image(target)
+	target = (target*256) - 0.5
+	target = target.astype("int32")
+	template = (template*256) - 0.5
+	template = template.astype("int32")
+	match = cv2.matchTemplate(target, template, cv2.TM_CCOEFF_NORMED)
+	print(match)
+	return(match)
 
 def naive_convolve(target, kernel, verbose = True, pad = False):
 	"""
@@ -230,8 +239,9 @@ if __name__ == "__main__":
 	
 	#naive_convolve(g_minsoo, sobel)
 	#naive_convolve(g_minsoo, sobel2)
-	naive_convolve(minsoo,translation,True,True)
-	coord, match_img = naive_matching(g_minsoo, g_ear, False)
+	#naive_convolve(minsoo,translation,True,True)
+	#coord, match_img = naive_matching(g_minsoo, g_ear, False)
+	match_img = template_matching(g_ear, g_minsoo)
 	#coord, match_img = naive_matching(g_minsoo, translation, False)
 	print(coord)
 	plt.subplot(131)

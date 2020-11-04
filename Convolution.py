@@ -9,11 +9,7 @@ def template_matching(template,target):
 	"""I wrote the methods below purely for my amusement and learning.
 	That's why I went extra miles with unoptimized approach and my own crude algorithms.
 	This method will utilize optimized methods from external library and will be used for practical performance."""
-	target = pad_image(target)
-	target = (target*256) - 0.5
-	target = target.astype("int32")
-	template = (template*256) - 0.5
-	template = template.astype("int32")
+	#target = pad_image(target)
 	match = cv2.matchTemplate(target, template, cv2.TM_CCOEFF_NORMED)
 	print(match)
 	return(match)
@@ -229,6 +225,17 @@ if __name__ == "__main__":
 	g_poodle = np.average(poodle, axis = 2)
 	g_ear = np.average(ear, axis = 2)
 	
+	# OpenCV
+	cv_minsoo = cv2.imread("./Img/Minsoo.jpg")
+	cv_hailey = cv2.imread("./Img/Hailey.jpg")
+	cv_poodle = cv2.imread("./Img/Poodle.jpg")
+	cv_ear = cv2.imread("./Img/Ear.jpg")
+	cv_g_minsoo = cv2.imread("./Img/Minsoo.jpg",cv2.IMREAD_GRAYSCALE)
+	cv_g_hailey = cv2.imread("./Img/Hailey.jpg",cv2.IMREAD_GRAYSCALE)
+	cv_g_poodle = cv2.imread("./Img/Poodle.jpg",cv2.IMREAD_GRAYSCALE)
+	cv_g_ear = cv2.imread("./Img/Ear.jpg",cv2.IMREAD_GRAYSCALE)
+	
+	
 	#kernels
 	sobel = np.array([[-1, -1, -1],[-1, 8, -1],[-1, -1, -1]])
 	sobel2 = np.array([[-2, -2, -2],[-2, 16, -2],[-2, -2, -2]])
@@ -241,9 +248,9 @@ if __name__ == "__main__":
 	#naive_convolve(g_minsoo, sobel2)
 	#naive_convolve(minsoo,translation,True,True)
 	#coord, match_img = naive_matching(g_minsoo, g_ear, False)
-	match_img = template_matching(g_ear, g_minsoo)
+	match_img = template_matching(cv_ear, cv_minsoo)
 	#coord, match_img = naive_matching(g_minsoo, translation, False)
-	print(coord)
+	#print(coord)
 	plt.subplot(131)
 	plt.imshow(g_minsoo,'gray')
 	plt.subplot(132)

@@ -11,7 +11,10 @@ def template_matching(template,target):
 	This method will utilize optimized methods from external library and will be used for practical performance."""
 	#target = pad_image(target)
 	match = cv2.matchTemplate(target, template, cv2.TM_CCOEFF_NORMED)
-	print(match)
+	height, width = np.shape(match)
+	print(np.shape(target))
+	print((width,height))
+	print((match.argmax() // height, match.argmax() % height))
 	return(match)
 
 def naive_convolve(target, kernel, verbose = True, pad = False):

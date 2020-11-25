@@ -12,10 +12,9 @@ def template_matching(template,target):
 	#target = pad_image(target)
 	match = cv2.matchTemplate(target, template, cv2.TM_CCOEFF_NORMED)
 	height, width = np.shape(match)
-	print(np.shape(target))
-	print((width,height))
-	print((match.argmax() // height, match.argmax() % height))
-	return(match)
+	match_index = match.argmax()
+	x_loc, y_loc = (match_index // width, match_index % width)
+	return(((x_loc, y_loc), match))
 
 def naive_convolve(target, kernel, verbose = True, pad = False):
 	"""
@@ -251,9 +250,10 @@ if __name__ == "__main__":
 	#naive_convolve(g_minsoo, sobel2)
 	#naive_convolve(minsoo,translation,True,True)
 	#coord, match_img = naive_matching(g_minsoo, g_ear, False)
-	match_img = template_matching(cv_ear, cv_minsoo)
-	#coord, match_img = naive_matching(g_minsoo, translation, False)
-	#print(coord)
+	coord, match_img = template_matching(cv_ear, cv_minsoo)
+	print(coord)
+	coord, match_img = naive_matching(g_minsoo, g_ear, False)
+	print(coord)
 	plt.subplot(131)
 	plt.imshow(g_minsoo,'gray')
 	plt.subplot(132)

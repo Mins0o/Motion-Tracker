@@ -6,12 +6,16 @@ import FourierTransform
 import cv2
 
 def template_matching(template,target):
-	"""I wrote the methods below purely for my amusement and learning.
-	That's why I went extra miles with unoptimized approach and my own crude algorithms.
-	This method will utilize optimized methods from external library and will be used for practical performance."""
-	#target = pad_image(target)
+	"""
+	(location_coordinate, correlation_image) = template_matching(template_window_image, target_image)
+	template: is the smaller cutout you want to find in the target_image
+	target: is the big image where the feature you want to find is located in
+	This is scale covariant, so if the template and target scale doesn't match, it won't work.
+	"""
+	#template_x, template_y = np.shape(template)[:2]
+	#target = pad_image(target,(template_x,template_y))
 	match = cv2.matchTemplate(target, template, cv2.TM_CCOEFF_NORMED)
-	height, width = np.shape(match)
+	height, width = np.shape(match)[:2]
 	match_index = match.argmax()
 	x_loc, y_loc = (match_index // width, match_index % width)
 	return(((x_loc, y_loc), match))
@@ -23,33 +27,39 @@ def naive_convolve(target, kernel, verbose = True, pad = False):
 			The dimensions should be odd numbers.
 	verbose: (Boolean) If True, plot of the result is shown.
 	pad : (Boolean) If True, the target image is padded with zeros before convolving. Default is False.
+	
+	!IMPORTANT! - This method only works with numpy type of images.
+	This method naive_single_channel() for convolution implementation.
 	"""
 	
 	# The number of channels is not handled here because grayscale images-
-	# - cause index error. It is handled in the if statements below.
+	# - cause index error. It is handled in the if statements later.
 	size_x, size_y = target.shape[:2]
 	kernel_x, kernel_y = kernel.shape
-	# kernel shape validity check
+	
+	# kernel shape validity check. Even number will terminate method.
 	if((kernel_x//2) * (kernel_y//2)) == 0:
 		print("Kernel sizes should be odd numbers in both axises")
 		return(target)
 	
+	# When padding option is selected
 	if pad:
 		target = pad_image(target,(kernel_x, kernel_y))
 	
+	# Pre-allocate a empty array image
 	convolved_image = np.zeros((size_x - kernel_x + 1,size_y - kernel_y + 1, 3))
 	
-	
+	# Image type check. Only works with numpy type of images.
 	if not target.dtype == 'float':
 		target.dtype = 'float'
 		target = (target + 0.5) / 256
 		if target.max() > 1:
 			print("Image's max value exceeds the limit")
 		
-	# One channel
+	# One channel (Grayscale image)
 	if len(target.shape) == 2 or target.shape[2] == 1:
 		convolved_image = naive_single_channel(target, kernel)
-	
+	# Color Image
 	elif target.shape[2] == 3:
 		# separate channels
 		channel1 = target[:,:,0]
@@ -64,7 +74,8 @@ def naive_convolve(target, kernel, verbose = True, pad = False):
 		print("We are not ready to process this type of image yet")
 		return convolved_image
 		
-	# This should be done to absolute value if you want to properly show the image
+	# This should be done to absolute value if you want to properly show the image.
+	# Clipping
 	_temp_zero = convolved_image < 0
 	_temp_one = convolved_image > 1
 	convolved_image[_temp_zero] = 0
@@ -74,25 +85,33 @@ def naive_convolve(target, kernel, verbose = True, pad = False):
 		#plt.imshow(convolved_image.get(), "gray")
 		plt.imshow(convolved_image, "gray")
 		plt.show()
+		
 	return convolved_image
 	
 def pad_image(target, kernel_size = (3, 3), value = "zero"):
 	"""
 	target: nparray of the image
 	kernel_size: The size of the kernel being used.
-				tuple with two integers (both numbers are odd numbers).
+				tuple with two integers (both numbers should be odd ).
 	value: The pattern value to fill in the padding
 			-zero: default. Fills in the padding with zero
-			-symmetric: (sym) Fills in the padding with mirrored image
-			-tile: Fills in the padding as if the image is tiled (repeated).
+			-symmetric: (sym) Fills in the padding with mirrored image			not implemented
+			-tile: Fills in the padding as if the image is tiled (repeated).	not implemented
 	"""
 	target_x, target_y = np.shape(target)[:2]
 	kernel_x, kernel_y = kernel_size
+	
+	# Create padded empty 'canvas' for-
+	# - Grayscale image
 	if len(target.shape) == 2 or target.shape[2] == 1:
 		new_image = np.zeros((target_x + kernel_x - 1, target_y + kernel_y - 1))
+	# - Color image
 	elif target.shape[2] == 3:
 		new_image = np.zeros((target_x + kernel_x - 1, target_y + kernel_y - 1, 3))
+	
+	# Place target image inside padded canvas
 	new_image[kernel_x //2:kernel_x // 2 + target_x, kernel_y // 2:kernel_y // 2 + target_y] = target
+	
 	if value.lower() == "sym" or value.lower == "symmetric":
 		pass
 	elif value.lower() == "tile":
@@ -112,7 +131,7 @@ def naive_single_channel(target, kernel):
 	# Notice the result size is smaller than the input image.
 	convolved_image = np.zeros((size_x - kernel_x + 1, size_y - kernel_y + 1))
 	
-	# Loop throught the target image with the kernel
+	# Loop through the target image with the kernel
 	for x in range(kernel_x //2, size_x - kernel_x //2):
 		for y in range(kernel_y // 2, size_y - kernel_y // 2):
 			# Cut out the target image in to the same size as the kernel, with (x, y) in the middle
@@ -182,11 +201,12 @@ def convolution_ft(image,kernel):
 	kernel = extend_kernel(kernel, (image_x, image_y))
 	ft_kernel = FourierTransform.ft_2d_2loops(kernel)
 	
-	# One channel
+	# One channel (Grayscale)
 	if len(image.shape) == 2 or target.shape[2] == 1:
 		ft_image = FourierTransform.ft_2d_2loops(image)
 		convolved_ft = ft_image * ft_kernel
 		convolved_image = FourierTransform.inverse_ft2_2loops(convolved_ft)
+	# Color image
 	elif target.shape[2] == 3:
 		# separate channels
 		channel1 = target[:,:,0]
@@ -215,6 +235,14 @@ def extend_kernel(kernel, target_size = (100,100)):
 	
 
 if __name__ == "__main__":
+	
+	
+	
+
+#######################################################################
+# Old examples for testing. You can ignore this part.
+"""
+if __name__ == "__main__":
 	# Images
 	minsoo = plt.imread("./Img/Minsoo.jpg")/255
 	hailey = plt.imread("./Img/Hailey.jpg")/255
@@ -227,7 +255,7 @@ if __name__ == "__main__":
 	g_poodle = np.average(poodle, axis = 2)
 	g_ear = np.average(ear, axis = 2)
 	
-	# OpenCV
+	# OpenCV images
 	cv_minsoo = cv2.imread("./Img/Minsoo.jpg")
 	cv_hailey = cv2.imread("./Img/Hailey.jpg")
 	cv_poodle = cv2.imread("./Img/Poodle.jpg")
@@ -261,5 +289,6 @@ if __name__ == "__main__":
 	plt.subplot(133)
 	plt.imshow(match_img,'gray')
 	plt.show()
-	
+"""
+#######################################################################
 	

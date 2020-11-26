@@ -235,6 +235,17 @@ def extend_kernel(kernel, target_size = (100,100)):
 	
 
 if __name__ == "__main__":
+	cv_g_minsoo = cv2.imread("./Img/Minsoo.jpg",cv2.IMREAD_GRAYSCALE)
+	cv_g_ear = cv2.imread("./Img/Ear.jpg",cv2.IMREAD_GRAYSCALE)
+	coord, match_img = template_matching(cv_g_ear, cv_g_minsoo)
+	print(coord)
+	plt.subplot(131)
+	plt.imshow(cv_g_minsoo,'gray')
+	plt.subplot(132)
+	plt.imshow(cv_g_ear,'gray')
+	plt.subplot(133)
+	plt.imshow(match_img,'gray')
+	plt.show()
 	
 	
 	
